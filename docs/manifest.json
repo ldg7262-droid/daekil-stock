@@ -1,0 +1,18 @@
+{
+  "name": "대길스톡",
+  "short_name": "대길",
+  "description": "대길 주식 모니터링 미니앱",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1115",
+  "theme_color": "#0f1115",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

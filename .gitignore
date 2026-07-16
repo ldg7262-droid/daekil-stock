@@ -1,0 +1,53 @@
+# 비밀 / 환경설정
+.env
+
+# DB (개인 거래 데이터 포함)
+*.db
+*.db-shm
+*.db-wal
+
+# 로그
+*.log
+
+# 히스토리 CSV (개인 매매 데이터)
+watch_history.csv
+us_watch_history.csv
+breakout_history.csv
+bottom_history.csv
+bottom_history_*.csv
+
+# 생성 결과물 (로컬 전용)
+snapshots/
+*.tmp
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+
+# AI 분석 입력/결과 (개인 내용)
+market_input_*.txt
+report_*.md
+run_analysis.md
+
+# HTML 리포트 (로컬 전용, docs/만 공개)
+dashboard.html
+report_latest.html
+us_report_latest.html
+signals_history.html
+macro_report.html
+watch_report_latest.html
+us_watch_report_latest.html
+position_flow.html
+money_flow.html
+report_btc.html
+report_eth.html
+report_sol.html
+
+# 개인 position 데이터
+position_summary.json
+holdings.txt
+
+# 공개: docs/ 는 제외 없음 (GitHub Pages)
+!docs/
+!docs/**

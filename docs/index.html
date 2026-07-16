@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<title>대길스톡</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+/* ── 토큰 ─────────────────────────────────── */
+:root{
+  --bg:      #0f1115;
+  --card:    #1a1d24;
+  --card2:   #1e2230;
+  --border:  #262b36;
+  --text:    #e8eaed;
+  --sub:     #8b93a7;
+  --dim:     #5d6578;
+  --red:     #f04452;
+  --green:   #29cc74;
+  --amber:   #f0c040;
+  --blue:    #3182f6;
+  --orange:  #f07844;
+  --radius:  12px;
+  --radsm:   8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:14px;line-height:1.5;
+  max-width:430px;margin:0 auto;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+/* ── 레이아웃 ────────────────────────────── */
+.page{padding:12px 14px 80px}
+.section{margin-bottom:20px}
+.sh{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.08em;
+    text-transform:uppercase;margin-bottom:8px;padding-left:2px}
+.card{background:var(--card);border-radius:var(--radius);
+      border:1px solid var(--border);padding:14px 16px;margin-bottom:8px}
+/* ── 온도 게이지 ─────────────────────────── */
+.fg-wrap{text-align:center;padding:18px 0 12px}
+.fg-score{font-size:52px;font-weight:900;line-height:1}
+.fg-grade{font-size:15px;color:var(--sub);margin-top:4px}
+.fg-gauge{font-size:18px;letter-spacing:2px;margin:10px 0 4px}
+.fg-ma5{font-size:12px;color:var(--dim)}
+.fg-trend{font-size:12px;margin-top:2px}
+/* ── 요약 카드 ───────────────────────────── */
+.sum-row{display:flex;gap:8px;padding:5px 0;
+         border-bottom:1px solid var(--border)}
+.sum-row:last-child{border:none}
+.sum-key{font-size:11px;min-width:46px;padding-top:2px}
+.sum-val{font-size:13px;flex:1}
+/* ── 보유종목 ────────────────────────────── */
+.hold-item{display:flex;justify-content:space-between;align-items:center;
+           padding:9px 0;border-bottom:1px solid var(--border)}
+.hold-item:last-child{border:none}
+.hold-name{font-weight:600;font-size:13px}
+.hold-code{font-size:11px;color:var(--dim);margin-left:4px}
+.pct{font-size:14px;font-weight:700}
+.up{color:var(--red)}.dn{color:var(--blue)}.nc{color:var(--sub)}
+/* ── 신호 카드 ───────────────────────────── */
+.sig-item{padding:9px 0;border-bottom:1px solid var(--border)}
+.sig-item:last-child{border:none}
+.sig-top{display:flex;justify-content:space-between;align-items:flex-start}
+.sig-type{font-size:11px;font-weight:700;color:var(--amber)}
+.sig-date{font-size:10px;color:var(--dim)}
+.sig-name{font-size:13px;font-weight:600;margin:2px 0}
+.sig-detail{font-size:11px;color:var(--sub)}
+.sig-grade{font-size:11px;margin-top:4px}
+/* ── 성적표 ──────────────────────────────── */
+.perf-row{display:flex;justify-content:space-between;align-items:center;
+          padding:7px 0;border-bottom:1px solid var(--border)}
+.perf-row:last-child{border:none}
+.perf-type{font-size:13px;font-weight:600}
+.perf-stats{font-size:12px;color:var(--sub);text-align:right}
+.perf-wr{font-size:14px;font-weight:700}
+/* ── 공시 ────────────────────────────────── */
+.disc-item{padding:8px 0;border-bottom:1px solid var(--border)}
+.disc-item:last-child{border:none}
+.disc-meta{display:flex;gap:6px;font-size:10px;color:var(--dim);margin-bottom:3px}
+.disc-type{font-weight:600;color:var(--sub);font-size:11px}
+.disc-sum{font-size:12px}
+/* ── 탭바 ────────────────────────────────── */
+.tabbar{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;
+  display:flex;background:var(--card);border-top:1px solid var(--border);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;
+     padding:8px 0 6px;cursor:pointer;color:var(--dim);font-size:10px;gap:2px}
+.tab.active{color:var(--blue)}
+.tab-icon{font-size:20px}
+/* ── 공통 ────────────────────────────────── */
+.empty{color:var(--dim);font-size:13px;text-align:center;padding:20px 0}
+.badge{display:inline-block;font-size:10px;font-weight:700;
+       padding:1px 7px;border-radius:20px;
+       background:rgba(49,130,246,.15);color:var(--blue)}
+.ts{font-size:10px;color:var(--dim);margin-top:14px;text-align:center}
+</style>
+</head>
+<body>
+
+<!-- ① 메인 페이지 -->
+<div id="pg-home" class="page">
+  <!-- 공포탐욕 -->
+  <div class="section">
+    <div class="sh">📡 시장 온도</div>
+    <div class="card">
+      <div class="fg-wrap" id="fg-block">
+        <div class="empty">로딩 중…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3줄 요약 → 최신 신호 top3 -->
+  <div class="section">
+    <div class="sh">📌 오늘의 신호</div>
+    <div class="card" id="sig-top3">
+      <div class="empty">로딩 중…</div>
+    </div>
+  </div>
+
+  <!-- 보유종목 등락률 -->
+  <div class="section">
+    <div class="sh">💼 보유종목</div>
+    <div class="card" id="holdings-block">
+      <div class="empty">로딩 중…</div>
+    </div>
+  </div>
+
+  <div class="ts" id="ts-home"></div>
+</div>
+
+<!-- ② 성적표 페이지 -->
+<div id="pg-perf" class="page" style="display:none">
+  <div class="section">
+    <div class="sh">🏆 신호 성적표 (채점 완료)</div>
+    <div class="card" id="perf-block">
+      <div class="empty">채점 완료 신호가 없습니다.</div>
+    </div>
+  </div>
+
+  <!-- 신호 전체 리스트 -->
+  <div class="section">
+    <div class="sh">⚡ 최근 30일 신호</div>
+    <div class="card" id="sig-all">
+      <div class="empty">로딩 중…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 공시 페이지 -->
+<div id="pg-disc" class="page" style="display:none">
+  <div class="section">
+    <div class="sh">📣 최근 7일 공시</div>
+    <div class="card" id="disc-block">
+      <div class="empty">공시 없음</div>
+    </div>
+  </div>
+</div>
+
+<!-- 탭바 -->
+<nav class="tabbar">
+  <div class="tab active" onclick="switchTab('home',this)">
+    <span class="tab-icon">🏠</span><span>홈</span>
+  </div>
+  <div class="tab" onclick="switchTab('perf',this)">
+    <span class="tab-icon">📊</span><span>성적표</span>
+  </div>
+  <div class="tab" onclick="switchTab('disc',this)">
+    <span class="tab-icon">📣</span><span>공시</span>
+  </div>
+</nav>
+
+<script>
+// ── Telegram WebApp 초기화 ───────────────────────────────────────
+if (window.Telegram && window.Telegram.WebApp) {
+  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
+  var tgTheme = window.Telegram.WebApp.colorScheme;
+}
+
+// ── 탭 전환 ─────────────────────────────────────────────────────
+function switchTab(name, el) {
+  ['home','perf','disc'].forEach(function(n) {
+    document.getElementById('pg-' + n).style.display = (n === name) ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+// ── 포맷 헬퍼 ───────────────────────────────────────────────────
+function pctHtml(v) {
+  if (v === null || v === undefined) return '<span class="nc">-</span>';
+  var cls = v > 0 ? 'up' : (v < 0 ? 'dn' : 'nc');
+  var s   = (v > 0 ? '+' : '') + v.toFixed(2) + '%';
+  return '<span class="pct ' + cls + '">' + s + '</span>';
+}
+function fmtPct(v, dec) {
+  if (v === null || v === undefined) return '-';
+  dec = dec || 1;
+  return (v > 0 ? '+' : '') + v.toFixed(dec) + '%';
+}
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── 온도 게이지 렌더 ─────────────────────────────────────────────
+function renderFG(fg) {
+  var el = document.getElementById('fg-block');
+  if (!fg || !fg.score) { el.innerHTML = '<div class="empty">데이터 없음</div>'; return; }
+  var s = fg.score;
+  var scoreColor = s >= 80 ? '#f04452' : s >= 60 ? '#f07844' : s >= 40 ? '#f0c040' : '#3182f6';
+  var trend = fg.trend !== 0 ? ('<span style="font-size:13px;color:var(--sub)">' +
+    (fg.trend > 0 ? '▲' : '▼') + Math.abs(fg.trend) + '</span>') : '';
+  el.innerHTML =
+    '<div class="fg-wrap">' +
+    '<div class="fg-score" style="color:' + scoreColor + '">' + s + '</div>' +
+    '<div class="fg-gauge">' + esc(fg.gauge) + '</div>' +
+    '<div class="fg-grade">' + esc(fg.grade) + ' ' + trend + '</div>' +
+    (fg.ma5 !== null ? '<div class="fg-ma5">MA5: ' + fg.ma5 + '</div>' : '') +
+    '</div>';
+}
+
+// ── 보유종목 렌더 ────────────────────────────────────────────────
+function renderHoldings(arr) {
+  var el = document.getElementById('holdings-block');
+  if (!arr || !arr.length) { el.innerHTML = '<div class="empty">보유종목 없음</div>'; return; }
+  el.innerHTML = arr.map(function(h) {
+    return '<div class="hold-item">' +
+      '<div><span class="hold-name">' + esc(h.name) + '</span>' +
+      '<span class="hold-code">' + esc(h.code) + '</span></div>' +
+      pctHtml(h.pct) +
+      '</div>';
+  }).join('');
+}
+
+// ── 신호 top3 (홈) ───────────────────────────────────────────────
+function renderSigTop3(sigs) {
+  var el = document.getElementById('sig-top3');
+  if (!sigs || !sigs.length) { el.innerHTML = '<div class="empty">최근 신호 없음</div>'; return; }
+  var top = sigs.slice(0,3);
+  el.innerHTML = top.map(function(s) {
+    var grade = s.graded && s.ret20 !== null
+      ? ('<span class="' + (s.ret20 >= 0 ? 'up' : 'dn') + '">✅ 20일 ' + fmtPct(s.ret20) + '</span>')
+      : '<span style="color:var(--dim)">⏳</span>';
+    return '<div class="sig-item">' +
+      '<div class="sig-top">' +
+      '<span class="sig-type">' + esc(s.type) + '</span>' +
+      '<span class="sig-date">' + esc(s.date) + '</span></div>' +
+      '<div class="sig-name">' + esc(s.code) + ' · ' + esc(s.detail).slice(0,30) + '</div>' +
+      '<div class="sig-grade">' + grade + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ── 신호 전체 (성적표 탭) ────────────────────────────────────────
+function renderSigAll(sigs) {
+  var el = document.getElementById('sig-all');
+  if (!sigs || !sigs.length) { el.innerHTML = '<div class="empty">신호 없음</div>'; return; }
+  el.innerHTML = sigs.map(function(s) {
+    var gradeHtml = '';
+    if (s.graded && s.ret20 !== null) {
+      var cls = s.ret20 >= 0 ? 'up' : 'dn';
+      gradeHtml = '<span class="' + cls + '">✅ ' + fmtPct(s.ret20) + '</span>';
+      if (s.alp20 !== null)
+        gradeHtml += ' <span style="color:var(--sub);font-size:10px">알파 ' + fmtPct(s.alp20) + '</span>';
+    } else {
+      gradeHtml = '<span style="color:var(--dim)">⏳ 채점 대기</span>';
+    }
+    return '<div class="sig-item">' +
+      '<div class="sig-top">' +
+      '<span class="sig-type">' + esc(s.type) + '</span>' +
+      '<span class="sig-date">' + esc(s.date) + '</span></div>' +
+      '<div class="sig-name">' + esc(s.code) + '</div>' +
+      '<div class="sig-detail">' + esc(s.detail) + '</div>' +
+      '<div class="sig-grade">' + gradeHtml + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ── 성적표 렌더 ──────────────────────────────────────────────────
+function renderPerf(summary) {
+  var el = document.getElementById('perf-block');
+  if (!summary || !summary.length) {
+    el.innerHTML = '<div class="empty">채점 완료 신호가 없습니다.<br><span style="font-size:11px;color:var(--dim)">신호 발생 후 20거래일 경과 시 자동 채점</span></div>';
+    return;
+  }
+  el.innerHTML = summary.map(function(p) {
+    var wrCls = p.win_rate >= 60 ? 'up' : (p.win_rate < 40 ? 'dn' : 'nc');
+    var alpHtml = p.avg_alp !== null
+      ? '<div style="font-size:11px;color:var(--sub)">알파 ' + fmtPct(p.avg_alp) + '</div>' : '';
+    return '<div class="perf-row">' +
+      '<div><div class="perf-type">' + esc(p.type) + ' <span class="badge">' + p.count + '건</span></div>' +
+      '<div style="font-size:12px;color:var(--sub)">평균 수익 ' + fmtPct(p.avg_ret) + '</div>' +
+      alpHtml + '</div>' +
+      '<div class="perf-wr ' + wrCls + '">' + p.win_rate + '%</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ── 공시 렌더 ────────────────────────────────────────────────────
+function renderDisc(arr) {
+  var el = document.getElementById('disc-block');
+  if (!arr || !arr.length) { el.innerHTML = '<div class="empty">최근 공시 없음</div>'; return; }
+  el.innerHTML = arr.map(function(d) {
+    return '<div class="disc-item">' +
+      '<div class="disc-meta"><span>' + esc(d.date) + '</span><span>' + esc(d.code) + '</span></div>' +
+      '<div class="disc-type">' + esc(d.type) + '</div>' +
+      '<div class="disc-sum">' + esc(d.summary) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ── 데이터 로드 ──────────────────────────────────────────────────
+fetch('data.json?t=' + Date.now())
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    renderFG(d.fear_greed);
+    renderHoldings(d.holdings);
+    renderSigTop3(d.signals);
+    renderSigAll(d.signals);
+    renderPerf(d.grade_summary);
+    renderDisc(d.disclosures);
+    var ts = d.generated ? d.generated.replace('T',' ') : '';
+    var el = document.getElementById('ts-home');
+    if (el) el.textContent = '업데이트: ' + ts;
+  })
+  .catch(function(e) {
+    console.error('data.json 로드 실패:', e);
+    document.getElementById('fg-block').innerHTML = '<div class="empty">⚠️ 데이터 로드 실패<br><span style="font-size:11px">data.json 확인 필요</span></div>';
+  });
+</script>
+</body>
+</html>
