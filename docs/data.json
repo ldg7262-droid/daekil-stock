@@ -1,46 +1,32 @@
 {
-  "generated": "2026-07-21T09:02:44",
+  "generated": "2026-07-21T18:40:05",
   "fear_greed": {
-    "score": 38,
-    "ma5": 37.8,
-    "grade": "공포😨",
+    "score": 42,
+    "ma5": 38.6,
+    "grade": "중립😐",
     "gauge": "🟦🟦🟦🟦⬜⬜⬜⬜⬜⬜",
     "date": "2026-07-21",
-    "trend": 1
+    "trend": 5
   },
-  "holdings": [
+  "holdings": [],
+  "signals": [
     {
+      "date": "2026-07-21",
       "code": "047810",
-      "name": "한국항공우주",
-      "pct": -1.81
-    },
-    {
-      "code": "189300",
-      "name": "인텔리안테크",
-      "pct": 0.0
-    },
-    {
-      "code": "451760",
-      "name": "컨텍",
-      "pct": -1.39
-    },
-    {
-      "code": "274090",
-      "name": "켄코아에어로스페",
-      "pct": -1.44
-    },
-    {
-      "code": "209640",
-      "name": "와이제이링크",
-      "pct": -1.47
-    },
-    {
-      "code": "474650",
-      "name": "링크솔루션",
-      "pct": -1.23
+      "type": "5%룰",
+      "detail": "주식등의대량보유상황보고서(약식)",
+      "graded": false,
+      "ret20": null,
+      "alp20": null
     }
   ],
-  "signals": [],
   "grade_summary": [],
-  "disclosures": []
+  "disclosures": [
+    {
+      "date": "20260721",
+      "code": "047810",
+      "type": "5%룰",
+      "summary": "주식등의대량보유상황보고서(약식)"
+    }
+  ]
 }
